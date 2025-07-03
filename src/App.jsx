@@ -4,8 +4,19 @@ import { v4 as uuidv4 } from "uuid";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import MessageInput from "./components/MessageInput";
+import NotificationSystem from "./components/NotificationSystem";
+import { useNotifications } from "./hooks/useNotifications";
 
 export default function App() {
+  const {
+    notifications,
+    removeNotification,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+  } = useNotifications();
+
   const [topics, setTopics] = useState(() => {
     const saved = localStorage.getItem("llama3_topics");
     if (saved) return JSON.parse(saved);
@@ -32,6 +43,7 @@ export default function App() {
     const newTopic = { id: uuidv4(), name: "Nouveau topic", messages: [] };
     setTopics((prev) => [...prev, newTopic]);
     setCurrentTopicId(newTopic.id);
+    showSuccess("Nouveau topic créé avec succès !");
   };
 
   const renameTopic = (id, newName) => {
@@ -40,12 +52,18 @@ export default function App() {
         topic.id === id ? { ...topic, name: newName } : topic
       )
     );
+    showInfo(`Topic renommé en "${newName}"`);
   };
 
   const deleteTopic = (id) => {
-    if (topics.length === 1) return;
+    if (topics.length === 1) {
+      showWarning("Impossible de supprimer le dernier topic");
+      return;
+    }
+    const topicToDelete = topics.find((t) => t.id === id);
     setTopics((t) => t.filter((topic) => topic.id !== id));
     if (currentTopicId === id) setCurrentTopicId(topics[0]?.id ?? null);
+    showSuccess(`Topic "${topicToDelete?.name || "Sans nom"}" supprimé`);
   };
 
   const sendMessage = async (input) => {
@@ -81,6 +99,7 @@ export default function App() {
         .join("\n") + "\nAssistant: ";
 
     setLoading(true);
+    showInfo("Envoi du message à Llama...", null, 2000);
 
     try {
       const res = await fetch("http://localhost:11434/api/generate", {
@@ -142,6 +161,9 @@ export default function App() {
           }
         }
       }
+
+      // Notification de succès quand la réponse est complète
+      showSuccess("Réponse reçue !", null, 2000);
     } catch (e) {
       setTopics((prev) =>
         prev.map((topic) => {
@@ -154,6 +176,7 @@ export default function App() {
           return { ...topic, messages };
         })
       );
+      showError("Erreur lors de l'envoi du message", e.message);
     } finally {
       setLoading(false);
     }
@@ -164,11 +187,17 @@ export default function App() {
       style={{
         display: "flex",
         height: "100vh",
-        backgroundColor: "#1a1a1a",
-        color: "#eee",
-        fontFamily: "sans-serif",
+        background:
+          "linear-gradient(135deg, #1f2937 0%, #111827 50%, #1f2937 100%)",
+        color: "#f3f4f6",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
+      <NotificationSystem
+        notifications={notifications}
+        removeNotification={removeNotification}
+      />
+
       <Sidebar
         topics={topics}
         currentTopicId={currentTopicId}
@@ -183,14 +212,45 @@ export default function App() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          padding: 10,
-          boxSizing: "border-box",
+          transition: "all 0.3s ease-in-out",
         }}
       >
         {currentTopic ? (
           <ChatWindow messages={currentTopic.messages} bottomRef={bottomRef} />
         ) : (
-          <div>Aucun topic sélectionné</div>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "4rem",
+                marginBottom: "1rem",
+                animation: "pulse 2s infinite",
+              }}
+            >
+              💬
+            </div>
+            <h2
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "600",
+                color: "#d1d5db",
+                margin: 0,
+              }}
+            >
+              Aucun topic sélectionné
+            </h2>
+            <p style={{ color: "#9ca3af", marginTop: "0.5rem", margin: 0 }}>
+              Sélectionnez un topic pour commencer à chatter
+            </p>
+          </div>
         )}
 
         <MessageInput onSend={sendMessage} loading={loading} />
