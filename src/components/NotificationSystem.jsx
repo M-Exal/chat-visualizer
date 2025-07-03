@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
+import { useIsMobile } from "../hooks/useWindowSize";
 
 export default function NotificationSystem({
   notifications,
   removeNotification,
 }) {
+  const isMobile = useIsMobile();
+
   return (
     <div
       style={{
         position: "fixed",
-        top: "1rem",
+        top: isMobile ? "5rem" : "1rem",
         right: "1rem",
+        left: isMobile ? "1rem" : "auto",
         zIndex: 1000,
         display: "flex",
         flexDirection: "column",
@@ -30,6 +34,7 @@ export default function NotificationSystem({
 function NotificationItem({ notification, onClose }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Animation d'entrée
@@ -63,8 +68,8 @@ function NotificationItem({ notification, onClose }) {
       display: "flex",
       alignItems: "center",
       gap: "0.75rem",
-      maxWidth: "400px",
-      minWidth: "300px",
+      maxWidth: isMobile ? "calc(100vw - 2rem)" : "400px",
+      minWidth: isMobile ? "auto" : "300px",
       cursor: "pointer",
       transform: isVisible && !isLeaving ? "translateX(0)" : "translateX(100%)",
       opacity: isVisible && !isLeaving ? 1 : 0,

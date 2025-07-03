@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useIsMobile } from "../hooks/useWindowSize";
 
 export default function MessageInput({ onSend, loading }) {
   const [input, setInput] = useState("");
+  const isMobile = useIsMobile();
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -12,7 +14,7 @@ export default function MessageInput({ onSend, loading }) {
   return (
     <div
       style={{
-        padding: "1.5rem",
+        padding: isMobile ? "1rem" : "1.5rem",
         borderTop: "1px solid #4b5563",
         backgroundColor: "#374151",
       }}
@@ -20,23 +22,28 @@ export default function MessageInput({ onSend, loading }) {
       <div
         style={{
           display: "flex",
-          gap: "0.75rem",
+          gap: isMobile ? "0.5rem" : "0.75rem",
           maxWidth: "64rem",
           margin: "0 auto",
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
         <div style={{ flex: 1, position: "relative" }}>
           <textarea
-            rows={3}
+            rows={isMobile ? 2 : 3}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            placeholder="Tape ta question ici... (Entrée pour envoyer, Shift+Entrée pour une nouvelle ligne)"
+            placeholder={
+              isMobile
+                ? "Votre message..."
+                : "Tape ta question ici... (Entrée pour envoyer, Shift+Entrée pour une nouvelle ligne)"
+            }
             style={{
               width: "100%",
               resize: "none",
-              padding: "1rem",
-              paddingRight: "3rem",
+              padding: isMobile ? "0.75rem" : "1rem",
+              paddingRight: isMobile ? "2.5rem" : "3rem",
               borderRadius: "1rem",
               border: "1px solid #6b7280",
               backgroundColor: "#4b5563",
@@ -45,6 +52,7 @@ export default function MessageInput({ onSend, loading }) {
               transition: "all 0.2s ease-in-out",
               opacity: loading ? 0.5 : 1,
               cursor: loading ? "not-allowed" : "text",
+              fontSize: isMobile ? "16px" : "14px", // Évite le zoom sur iOS
             }}
             onFocus={(e) => {
               e.target.style.borderColor = "#3b82f6";
@@ -80,7 +88,7 @@ export default function MessageInput({ onSend, loading }) {
           onClick={handleSend}
           disabled={loading || !input.trim()}
           style={{
-            padding: "0.75rem 1.5rem",
+            padding: isMobile ? "0.75rem" : "0.75rem 1.5rem",
             borderRadius: "1rem",
             fontWeight: "600",
             border: "none",
@@ -88,7 +96,10 @@ export default function MessageInput({ onSend, loading }) {
             transition: "all 0.2s ease-in-out",
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
             gap: "0.5rem",
+            minWidth: isMobile ? "100%" : "auto",
+            width: isMobile ? "100%" : "auto",
             ...(loading || !input.trim()
               ? {
                   backgroundColor: "#6b7280",

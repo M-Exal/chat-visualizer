@@ -1,12 +1,15 @@
 import ReactMarkdown from "react-markdown";
+import { useIsMobile } from "../hooks/useWindowSize";
 
 export default function ChatWindow({ messages, bottomRef }) {
+  const isMobile = useIsMobile();
+
   return (
     <div
       style={{
         flex: 1,
         overflowY: "auto",
-        padding: "1.5rem",
+        padding: isMobile ? "1rem" : "1.5rem",
         display: "flex",
         flexDirection: "column",
         gap: "1rem",
@@ -67,9 +70,9 @@ export default function ChatWindow({ messages, bottomRef }) {
         >
           <div
             style={{
-              maxWidth: "80%",
-              padding: "1rem",
-              borderRadius: "1rem",
+              maxWidth: isMobile ? "90%" : "80%",
+              padding: isMobile ? "0.875rem" : "1rem",
+              borderRadius: isMobile ? "0.75rem" : "1rem",
               boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.25)",
               transition: "all 0.3s ease-in-out",
               ...(msg.role === "user"
