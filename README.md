@@ -25,7 +25,7 @@ cd chat-visualizer
 > 📦 **Prérequis** : Assurez-vous d'avoir Docker et Docker Compose installés sur votre machine
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Cela va construire et démarrer les deux conteneurs nécessaires :
@@ -38,7 +38,7 @@ Cela va construire et démarrer les deux conteneurs nécessaires :
 > 📺 Pour suivre l'avancée, ouvrez un autre terminal et utilisez la commande suivante :
 
 ```bash
-docker-compose logs -f ollama
+docker logs -f ollama
 ```
 
 Cela vous montrera la progression du téléchargement ligne par ligne.
@@ -134,7 +134,7 @@ Le script 'showdb' ouvre Prisma Studio, une interface graphique pour interagir a
 - Suivez les logs de téléchargement via :
 
 ```bash
-docker-compose logs -f ollama
+docker logs -f ollama
 ```
 
 - Le modèle sera prêt lorsque vous verrez quelque chose comme :
@@ -146,7 +146,7 @@ docker-compose logs -f ollama
 Si jamais le téléchargement échoue, essayez de relancer la commande :
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Ou bien essayez de télécharger manuellement le modèle avec :
