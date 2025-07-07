@@ -47,7 +47,7 @@ export default function TopicItem({
 	return (
 		<div
 			className={containerClasses}
-			onMouseDown={(e) => e.preventDefault()} // prevent focus loss when clicking buttons
+			onMouseDown={(e) => e.preventDefault()}
 		>
 			{editing ? (
 				<input
