@@ -1,26 +1,12 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useApiRequest } from "./useApiRequest";
 import { useNotifications } from "./useNotifications";
-import { Topic } from "@/lib/type";
+import { Message, Topic } from "@/lib/type";
 
-interface TopicActions {
-	fetchTopics: () => Promise<void>;
-	fetchMessages: (topicId: string) => Promise<void>;
-	addTopic: () => Promise<void>;
-	renameTopic: (id: string, name: string) => Promise<void>;
-	deleteTopic: (id: string, currentTopicId: string | null) => Promise<void>;
-}
-
-interface UpdateTopicById {
-	(id: string, updater: (topic: Topic) => Topic): void;
-}
-
-export function useTopicActions(
-	setTopics: React.Dispatch<React.SetStateAction<Topic[]>>,
-	setCurrentTopicId: React.Dispatch<React.SetStateAction<string | null>>,
-	updateTopicById: UpdateTopicById,
-): TopicActions {
+export function useTopicActions() {
 	const apiRequest = useApiRequest();
+	const [topics, setTopics] = useState<Topic[]>([]);
+	const [currentTopicId, setCurrentTopicId] = useState<string | null>(null);
 	const { showSuccess, showError, showInfo } = useNotifications();
 
 	const fetchTopics = useCallback(async () => {
@@ -35,21 +21,31 @@ export function useTopicActions(
 		}
 	}, [apiRequest, setTopics, setCurrentTopicId]);
 
-	const fetchMessages = useCallback(
-		async (topicId: string) => {
-			const topic = await apiRequest<Topic>(
-				`/api/topic?id=${topicId}`,
-				undefined,
-				"Erreur chargement messages",
+	const getTopics = () => {
+		if (topics.length === 0) {
+			fetchTopics();
+			return [];
+		}
+		return topics;
+	};
+
+	const getTopicById = (id: string | null): Topic | undefined => {
+		return topics.find((topic) => topic.id === id);
+	};
+
+	const currentTopic = getTopicById(currentTopicId);
+
+	const TopicAddMessage = useCallback(
+		(topicId: string, message: Message) => {
+			setTopics((prev) =>
+				prev.map((t) =>
+					t.id === topicId
+						? { ...t, messages: [...(t.messages || []), message] }
+						: t,
+				),
 			);
-			if (topic) {
-				updateTopicById(topicId, (t) => ({
-					...t,
-					messages: topic.messages,
-				}));
-			}
 		},
-		[apiRequest, updateTopicById],
+		[setTopics],
 	);
 
 	const addTopic = useCallback(async () => {
@@ -81,11 +77,13 @@ export function useTopicActions(
 				"Erreur renommage",
 			);
 			if (updated) {
-				updateTopicById(id, (t) => ({ ...t, name }));
+				setTopics((prevTopics) =>
+					prevTopics.map((t) => (t.id === id ? { ...t, name } : t)),
+				);
 				showInfo(`Topic renommé en "${name}"`);
 			}
 		},
-		[apiRequest, updateTopicById, showInfo],
+		[apiRequest, showInfo],
 	);
 
 	const deleteTopic = useCallback(
@@ -107,11 +105,46 @@ export function useTopicActions(
 		[setTopics, setCurrentTopicId, showError, showSuccess],
 	);
 
+	const fetchTopicMessages = useCallback(async () => {
+		console.log("Fetching messages for topic ID:", currentTopicId);
+		const topic = await apiRequest<Topic>(
+			`/api/topic?id=${currentTopicId}`,
+			undefined,
+			"Erreur chargement messages",
+		);
+		if (topic) {
+			setTopics((prevTopics) =>
+				prevTopics.map((t) =>
+					t.id === currentTopicId
+						? { ...t, messages: topic.messages }
+						: t,
+				),
+			);
+		}
+		console.log("Messages fetched:", topic?.messages);
+	}, [apiRequest, currentTopicId]);
+
+	useEffect(() => {
+		if (currentTopicId) {
+			fetchTopicMessages();
+		}
+	}, [currentTopicId, fetchTopicMessages]);
+
+	useEffect(() => {
+		fetchTopics();
+	}, [fetchTopics]);
+
 	return {
 		fetchTopics,
-		fetchMessages,
+		getTopics,
 		addTopic,
+		TopicAddMessage,
+		fetchTopicMessages,
 		renameTopic,
 		deleteTopic,
+		getTopicById,
+		currentTopic,
+		currentTopicId,
+		setCurrentTopicId,
 	};
 }

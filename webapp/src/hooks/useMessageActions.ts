@@ -1,24 +1,18 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useApiRequest } from "./useApiRequest";
 import { useNotifications } from "./useNotifications";
-import { Message, Topic } from "@/lib/type";
+import { Message } from "@/lib/type";
+import { useTopicActions } from "./useTopicActions";
 
-interface UseMessageActionsParams {
-	currentTopicId: string | null;
-	updateTopicById: (
-		topicId: string,
-		updater: (topic: Topic) => Topic,
-	) => void;
-	setLoading: (loading: boolean) => void;
-}
-
-export function useMessageActions({
-	currentTopicId,
-	updateTopicById,
-	setLoading,
-}: UseMessageActionsParams): { sendMessage: (input: string) => Promise<void> } {
+export function useMessageActions(): {
+	loading: boolean;
+	sendMessage: (input: string) => Promise<void>;
+} {
+	const [loading, setLoading] = useState(false);
 	const apiRequest = useApiRequest();
 	const { showError } = useNotifications();
+
+	const { currentTopicId, TopicAddMessage } = useTopicActions();
 
 	const streamAssistantReply = useCallback(
 		async (
@@ -62,28 +56,13 @@ export function useMessageActions({
 				if (!savedMessage)
 					throw new Error("Message utilisateur non sauvegardé");
 
-				updateTopicById(currentTopicId, (t) => ({
-					...t,
-					messages: [...t.messages, savedMessage],
-				}));
+				TopicAddMessage(currentTopicId, savedMessage);
 
 				const updateAssistantMessage = (replyContent: string): void => {
-					updateTopicById(currentTopicId, (t) => {
-						const msgs = [...t.messages];
-						const last = msgs[msgs.length - 1];
-						if (last?.role === "assistant") {
-							msgs[msgs.length - 1] = {
-								...last,
-								content: replyContent,
-							};
-						} else {
-							msgs.push({
-								role: "assistant",
-								content: replyContent,
-								topicId: currentTopicId,
-							});
-						}
-						return { ...t, messages: msgs.slice(-10) };
+					TopicAddMessage(currentTopicId, {
+						role: "assistant",
+						content: replyContent,
+						topicId: currentTopicId,
 					});
 				};
 
@@ -103,17 +82,11 @@ export function useMessageActions({
 				});
 			} catch (e) {
 				const msg = e instanceof Error ? e.message : "Erreur";
-				updateTopicById(currentTopicId, (t) => ({
-					...t,
-					messages: [
-						...t.messages,
-						{
-							role: "assistant",
-							content: `Erreur : ${msg}`,
-							topicId: currentTopicId,
-						},
-					],
-				}));
+				TopicAddMessage(currentTopicId, {
+					role: "assistant",
+					content: `Erreur : ${msg}`,
+					topicId: currentTopicId,
+				});
 				showError("Erreur envoi message");
 			} finally {
 				setLoading(false);
@@ -121,13 +94,13 @@ export function useMessageActions({
 		},
 		[
 			currentTopicId,
-			updateTopicById,
 			streamAssistantReply,
 			apiRequest,
 			showError,
 			setLoading,
+			TopicAddMessage,
 		],
 	);
 
-	return { sendMessage };
+	return { loading, sendMessage };
 }
