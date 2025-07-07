@@ -16,15 +16,6 @@ export interface Message {
 	content: string;
 }
 
-export interface ChatWindowProps {
-	messages: Message[];
-}
-
-export interface ChatBubbleProps {
-	msg: Message;
-	delay: number;
-}
-
 export interface Notification {
 	id: string;
 	type: "success" | "error" | "warning" | "info";
