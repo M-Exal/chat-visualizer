@@ -1,4 +1,8 @@
-export default function EmptyState({ isMobile }: { isMobile: boolean }) {
+import { useIsMobile } from "@/hooks/useWindowSize";
+
+export default function EmptyState() {
+	const isMobile = useIsMobile();
+
 	return (
 		<div className="flex flex-1 flex-col items-center justify-center text-center px-8 py-4">
 			<div className="text-5xl mb-4" aria-hidden="true">
