@@ -1,244 +1,161 @@
+
 # 🦙 Llama Chat - Interface Web pour Ollama
 
 Une interface de chat moderne et élégante pour interagir avec les modèles Llama via Ollama. Créez plusieurs conversations, gérez vos topics et profitez d'une expérience utilisateur fluide avec animations et notifications.
 
-![Llama Chat Preview](https://img.shields.io/badge/React-18+-blue.svg)
+![Llama Chat Preview](https://img.shields.io/badge/Next.js-13+-black.svg)
 ![Ollama](https://img.shields.io/badge/Ollama-Compatible-green.svg)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)
 
-## ✨ Fonctionnalités
+---
 
-- 💬 **Chat en temps réel** avec streaming des réponses
-- 📂 **Gestion de topics** multiples (créer, renommer, supprimer)
-- 🎨 **Interface moderne** avec animations fluides
-- 🔔 **Système de notifications** interactif
-- 💾 **Sauvegarde automatique** dans le localStorage
-- 📱 **Responsive design** pour mobile et desktop
-- ⚡ **Performance optimisée** avec limitation de l'historique
-- 🎯 **Support Markdown** pour le formatage des réponses
+## 🚀 Démarrage rapide avec Docker
 
-## 🚀 Installation
-
-### Prérequis
-
-- **Node.js** (version 18 ou supérieure)
-- **npm** ou **yarn**
-- **Ollama** installé et configuré
-
-### 1. Installation d'Ollama
-
-#### Sur macOS
+### 1. Cloner le dépôt
 
 ```bash
-# Télécharger et installer Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Ou via Homebrew
-brew install ollama
-```
-
-#### Sur Linux
-
-```bash
-curl -fsSL https://ollama.ai/install.sh | sh
-```
-
-#### Sur Windows
-
-Téléchargez l'installateur depuis [ollama.ai](https://ollama.ai/download)
-
-### 2. Installation du modèle Llama
-
-```bash
-# Télécharger et installer Llama 3.2 (recommandé)
-ollama pull llama3.2
-
-# Alternatives disponibles :
-# ollama pull llama3.1
-# ollama pull llama3.2:1b    # Version plus légère
-# ollama pull llama3.2:3b    # Version intermédiaire
-```
-
-### 3. Démarrage d'Ollama
-
-```bash
-# Démarrer le serveur Ollama
-ollama serve
-
-# Le serveur sera disponible sur http://localhost:11434
-```
-
-### 4. Installation de l'application
-
-```bash
-# Cloner le projet
 git clone <votre-repo>
-cd llama3-chat
-
-# Installer les dépendances
-npm install
-
-# Démarrer l'application en mode développement
-npm run dev
-
-# L'application sera disponible sur http://localhost:5173
+cd chat-visualizer
 ```
 
-## 🎯 Utilisation
+### 2. Démarrer les services Docker
 
-### Interface principale
-
-L'application est composée de deux parties principales :
-
-1. **Sidebar gauche** : Gestion des topics de conversation
-2. **Zone de chat** : Affichage des messages et zone de saisie
-
-### Gestion des topics
-
-- **➕ Créer un topic** : Cliquez sur "Nouveau topic" dans la sidebar
-- **✏️ Renommer un topic** : Survolez un topic et cliquez sur l'icône crayon
-- **🗑️ Supprimer un topic** : Survolez un topic et cliquez sur l'icône poubelle
-- **🔄 Changer de topic** : Cliquez sur le nom d'un topic pour l'activer
-
-### Envoi de messages
-
-- **Saisie simple** : Tapez votre message et appuyez sur `Entrée`
-- **Saisie multiligne** : Utilisez `Shift + Entrée` pour une nouvelle ligne
-- **Envoi** : Cliquez sur le bouton "Envoyer 🚀" ou utilisez `Entrée`
-
-### Raccourcis clavier
-
-- `Entrée` : Envoyer le message
-- `Shift + Entrée` : Nouvelle ligne dans le message
-- `Échap` : Annuler l'édition d'un topic
-
-## 🔧 Configuration
-
-### Modèles supportés
-
-L'application est configurée pour utiliser `llama3.2` par défaut. Pour changer de modèle, modifiez la ligne dans `src/App.jsx` :
-
-```javascript
-model: "llama3.2", // Changez ici le nom du modèle
-```
-
-Modèles disponibles :
-
-- `llama3.2` (recommandé)
-- `llama3.1`
-- `llama3.2:1b` (version légère)
-- `llama3.2:3b` (version intermédiaire)
-
-### Paramètres de l'API
-
-L'application communique avec Ollama via l'API REST sur `http://localhost:11434`. Si votre instance Ollama est sur un autre port ou serveur, modifiez l'URL dans `src/App.jsx` :
-
-```javascript
-const res = await fetch("http://localhost:11434/api/generate", {
-  // Configuration...
-});
-```
-
-### Limitation de l'historique
-
-Par défaut, l'application limite l'historique à 10 messages par conversation pour optimiser les performances. Vous pouvez ajuster cette valeur dans `src/App.jsx` :
-
-```javascript
-// Limiter l'historique à 9 messages + le nouveau (donc max 10)
-const limitedMessages =
-  oldMessages.length >= 9 // Changez cette valeur
-    ? oldMessages.slice(oldMessages.length - 9)
-    : oldMessages;
-```
-
-## 🛠️ Développement
-
-### Structure du projet
-
-```
-src/
-├── components/
-│   ├── ChatWindow.jsx          # Zone d'affichage des messages
-│   ├── MessageInput.jsx        # Zone de saisie des messages
-│   ├── NotificationSystem.jsx  # Système de notifications
-│   ├── Sidebar.jsx            # Barre latérale des topics
-│   └── TopicItem.jsx          # Élément individuel de topic
-├── hooks/
-│   └── useNotifications.js    # Hook pour les notifications
-├── App.jsx                    # Composant principal
-├── index.css                 # Styles globaux et animations
-└── main.jsx                  # Point d'entrée React
-```
-
-### Scripts disponibles
+> 📦 **Prérequis** : Assurez-vous d'avoir Docker et Docker Compose installés sur votre machine
 
 ```bash
-# Développement
-npm run dev
-
-# Build de production
-npm run build
-
-# Prévisualisation du build
-npm run preview
-
-# Linting
-npm run lint
+docker-compose up --build
 ```
 
-### Technologies utilisées
+Cela va construire et démarrer les deux conteneurs nécessaires :
+- **Ollama** : Serveur local pour les modèles LLM (accessible sur [http://localhost:11434](http://localhost:11434))
+- **PostgreSQL** : Base de données pour stocker les conversations et topics (accessible sur [http://localhost:5432](http://localhost:5432))
 
-- **React 19** - Framework frontend
-- **Vite** - Build tool et serveur de développement
-- **Tailwind CSS** - Framework CSS utilitaire
-- **React Markdown** - Rendu du contenu Markdown
-- **UUID** - Génération d'identifiants uniques
+> 🔄 **Note importante** : Lors du premier démarrage, **le modèle `llama3` est téléchargé automatiquement** via `ollama pull llama3`.  
+> Ce téléchargement peut prendre plusieurs minutes (~4 à 8 Go selon la version du modèle).  
+>  
+> 📺 Pour suivre l'avancée, ouvrez un autre terminal et utilisez la commande suivante :
+
+```bash
+docker-compose logs -f ollama
+```
+
+Cela vous montrera la progression du téléchargement ligne par ligne.
+
+### 3. Lancer l'application Next.js
+
+Dans un nouveau terminal :
+
+```bash
+cd webapp
+npm install
+npx prisma generate     # Génère les types Prisma
+npx prisma db push      # Pousse le schéma à la base PostgreSQL
+npm run dev             # Démarrage en mode développement
+```
+
+> 💡 L'application sera disponible sur [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🛠️ Architecture du projet
+
+```
+chat-visualizer/
+├── docker-compose.yml        # Configuration des conteneurs
+├── README.md                 # Documentation principale
+└── webapp/                   # Application Next.js
+    ├── prisma/               # Schéma Prisma + client DB
+    ├── public/               # Fichiers statiques
+    ├── src/                  # Source de l'app Next.js
+    ├── package.json
+    ├── next.config.ts
+    └── ...
+```
+
+---
+
+## 🔧 Scripts disponibles (`webapp/package.json`)
+
+```json
+"scripts": {
+  "dev": "next dev",                    // Démarrage en mode développement
+  "build": "next build",                // Build pour la production
+  "start": "next start",                // Démarrage en production
+  "lint": "next lint",                  // Analyse de code
+  "resetdb": "prisma migrate reset --force",    // Réinitialisation de la base (⚠ destructif)
+  "updatedb": "npx prisma migrate dev --name",  // Générer une migration Prisma
+  "showdb": "npx prisma studio"        // Ouvre Prisma Studio dans le navigateur
+}
+```
+
+Les scripts sont à utiliser dans le répertoire `webapp` :
+
+```bash
+cd webapp
+npm run dev          # Démarrer l'application
+npm run build        # Construire pour la production
+npm run start        # Démarrer en mode production
+npm run lint         # Linter le code
+npm run resetdb      # Réinitialiser la base de données (attention, cela supprime toutes les données !)
+npm run updatedb     # Mettre à jour la base de données avec les dernières migrations
+npm run showdb       # Ouvrir Prisma Studio pour visualiser la base de données
+```
+
+Le script 'updatedb' est à utiliser pour générer une migration après avoir modifié le schéma Prisma. Il prend un argument pour nommer la migration, par exemple :
+
+```bash
+npm run updatedb -- --name "ajout_colonne_exemple"
+```
+
+Le script 'resetdb' est destructif et supprime toutes les données de la base. Utilisez-le avec précaution, surtout en production.
+
+Le script 'showdb' ouvre Prisma Studio, une interface graphique pour interagir avec la base de données. C'est très utile pour visualiser et modifier les données directement depuis le navigateur.
+
+---
+
+## 🧪 Technologies utilisées
+
+- **Next.js 13+** – Framework fullstack React
+- **React 18+**
+- **Tailwind CSS** – Design responsive et moderne
+- **Prisma ORM** – Mapping PostgreSQL
+- **Ollama API** – Serveur local de LLMs
+- **Docker Compose** – Orchestration locale des services
+
+---
 
 ## 🐛 Dépannage
 
-### Problèmes courants
+### 📦 Le modèle `llama3` n'est pas encore prêt ?
 
-#### Ollama n'est pas accessible
-
-```bash
-# Vérifiez que Ollama est démarré
-ollama serve
-
-# Vérifiez que le modèle est installé
-ollama list
-
-# Testez l'API directement
-curl http://localhost:11434/api/tags
-```
-
-#### Le modèle n'est pas trouvé
+- Soyez patient lors du premier lancement.
+- Suivez les logs de téléchargement via :
 
 ```bash
-# Vérifiez les modèles disponibles
-ollama list
-
-# Installez le modèle si nécessaire
-ollama pull llama3.2
+docker-compose logs -f ollama
 ```
 
-#### Erreur CORS
+- Le modèle sera prêt lorsque vous verrez quelque chose comme :
 
-Si vous rencontrez des erreurs CORS, assurez-vous qu'Ollama autorise les requêtes depuis votre domaine. Ollama autorise généralement localhost par défaut.
+```
+✓ llama3 pulled successfully
+```
 
-#### Performance lente
+Si jamais le téléchargement échoue, essayez de relancer la commande :
 
-- Utilisez un modèle plus léger (`llama3.2:1b`)
-- Augmentez la RAM allouée à Ollama
-- Réduisez la limite d'historique des messages
+```bash
+docker-compose up --build
+```
 
-## 📝 Fonctionnalités à venir
+Ou bien essayez de télécharger manuellement le modèle avec :
 
-- [ ] Mode sombre/clair
-- [ ] Export des conversations
-- [ ] Recherche dans l'historique
-- [ ] Support de fichiers joints
-- [ ] Paramètres configurables de l'IA
-- [ ] Thèmes personnalisables
+```bash
+docker exec -it ollama ollama pull llama3
+```
+
+---
 
 ## 🤝 Contribution
 
@@ -259,7 +176,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 - [Documentation Ollama](https://ollama.ai/docs)
 - [Modèles Llama disponibles](https://ollama.ai/library)
 - [API Ollama](https://github.com/ollama/ollama/blob/main/docs/api.md)
-- [React Documentation](https://react.dev)
+- [Next.js Documentation](https://nextjs.org/docs)
 - [Tailwind CSS](https://tailwindcss.com)
 
 ---
