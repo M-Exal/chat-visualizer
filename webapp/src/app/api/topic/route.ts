@@ -22,6 +22,13 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+	// Handle GET requests to fetch topics or a specific topic by ID
+	// If an ID is provided, return the topic with its messages
+	// If no ID is provided, return all topics without messages
+	// This function is used to fetch topics for the topic list in the UI
+	// and to fetch a specific topic's messages when selected.
+	// It also handles errors and returns appropriate responses.
+	// The response is in JSON format, with a 200 status for success
 	try {
 		const url = new URL(req.url);
 		const topicId = url.searchParams.get("id");
@@ -65,8 +72,6 @@ export async function GET(req: Request) {
 					createdAt: "desc",
 				},
 			});
-
-			console.log("All topics:", topics);
 
 			return new Response(JSON.stringify(topics), { status: 200 });
 		}
