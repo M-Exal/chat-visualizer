@@ -1,38 +1,12 @@
+import { Message } from "@/lib/type";
 import ReactMarkdown from "react-markdown";
-import { useIsMobile } from "../hooks/useWindowSize";
 
-import { ChatBubbleProps, ChatWindowProps } from "@/lib/type";
-
-export default function ChatWindow({ messages = [] }: ChatWindowProps) {
-	const isMobile = useIsMobile();
-
-	if (messages.length === 0) {
-		return (
-			<div className="flex-1 overflow-y-auto flex flex-col items-center justify-center text-center p-6">
-				<div className="text-8xl mb-4 animate-bounce">🤖</div>
-				<div className="text-lg text-gray-400 italic">
-					Pose une question pour commencer la conversation !
-				</div>
-				<div className="text-sm text-gray-500 mt-2">
-					Je suis ici pour t&apos;aider avec tes questions
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div
-			className={`flex-1 overflow-y-auto flex flex-col gap-4 ${isMobile ? "p-4" : "p-6"}`}
-		>
-			{Array.isArray(messages) &&
-				messages.map((msg, idx) => (
-					<ChatBubble key={idx} msg={msg} delay={idx * 100} />
-				))}
-		</div>
-	);
+interface ChatBubbleProps {
+	msg: Message;
+	delay: number;
 }
 
-function ChatBubble({ msg, delay }: ChatBubbleProps) {
+export function ChatBubble({ msg, delay }: ChatBubbleProps) {
 	const isUser = msg.role === "user";
 	const containerClass = `flex ${isUser ? "justify-end" : "justify-start"} animate-slide-up`;
 	const bubbleBase = `transition-transform shadow-lg max-w-[90%] md:max-w-[80%] p-3 md:p-4 rounded-lg md:rounded-xl`;

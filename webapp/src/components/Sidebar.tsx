@@ -1,27 +1,25 @@
+import { useTopicActions } from "@/hooks/useTopicActions";
 import TopicItem from "./TopicItem";
+import { useCallback, useState } from "react";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import SidebarToggleButton from "./SidebarToggleButton";
+import { useNotifications } from "@/hooks/useNotifications";
 
-export default function Sidebar({
-	isMobile,
-	isMobileMenuOpen,
-	isSidebarCollapsed,
-	topics,
-	currentTopicId,
-	setCurrentTopicId,
-	addTopic,
-	renameTopic,
-	deleteTopic,
-}: {
-	isMobile: boolean;
-	isMobileMenuOpen: boolean;
-	isSidebarCollapsed: boolean;
-	topics: { id: string; name: string }[];
-	currentTopicId: string;
-	setCurrentTopicId: (id: string) => void;
-	addTopic: () => void;
-	renameTopic: (id: string, newName: string) => void;
-	deleteTopic: (id: string) => void;
-}) {
+export default function Sidebar({ isMobile }: { isMobile: boolean }) {
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 	const isCollapsed = !isMobile && isSidebarCollapsed;
+
+	const { showInfo } = useNotifications();
+	const {
+		addTopic,
+		getTopics,
+		deleteTopic,
+		renameTopic,
+		setCurrentTopicId,
+		currentTopicId,
+	} = useTopicActions();
+	const topics = getTopics();
 
 	const containerClass = `${
 		isMobile
@@ -41,8 +39,36 @@ export default function Sidebar({
 	const collapsedTopicBg = (isActive: boolean): string =>
 		isActive ? "bg-blue-600" : "bg-gray-600";
 
+	const toggleSidebar = useCallback(() => {
+		setIsSidebarCollapsed((prev) => {
+			const next = !prev;
+			showInfo(
+				next ? "Sidebar masquée (Ctrl+B)" : "Sidebar affichée (Ctrl+B)",
+				null,
+				2000,
+			);
+			return next;
+		});
+	}, [showInfo]);
+
+	useKeyboardShortcuts(toggleSidebar);
+
 	return (
 		<div className={containerClass}>
+			<SidebarToggleButton
+				isMobile={isMobile}
+				isSidebarCollapsed={isSidebarCollapsed}
+				isMobileMenuOpen={isMobileMenuOpen}
+				toggleSidebar={toggleSidebar}
+				toggleMobileMenu={() => setIsMobileMenuOpen((open) => !open)}
+			/>
+
+			{isMobileMenuOpen && (
+				<div
+					onClick={() => setIsMobileMenuOpen(false)}
+					className="fixed inset-0 bg-black bg-opacity-50 z-[999]"
+				/>
+			)}
 			{/* === COLLAPSED SIDEBAR === */}
 			{isCollapsed ? (
 				<aside className="w-15 bg-gray-700 border-r border-gray-600 p-4 flex flex-col items-center shadow-lg h-screen overflow-hidden">
@@ -108,7 +134,10 @@ export default function Sidebar({
 								) {
 									setTimeout(() => {
 										topics.forEach((topic) =>
-											deleteTopic(topic.id),
+											deleteTopic(
+												topic.id,
+												currentTopicId,
+											),
 										);
 									}, 200);
 								}
@@ -129,7 +158,9 @@ export default function Sidebar({
 									isActive={topic.id === currentTopicId}
 									onSelect={setCurrentTopicId}
 									onRename={renameTopic}
-									onDelete={deleteTopic}
+									onDelete={(id) =>
+										deleteTopic(id, currentTopicId)
+									}
 								/>
 							</div>
 						))}
